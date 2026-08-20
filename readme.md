@@ -118,7 +118,7 @@ aproximado.
 
 ## 5. Capturas y ejemplo verificado
 
-*(diagrama del modelo de datos: pendiente)*
+![Modelo de datos: trazabilidad de lote](docs/modelo-datos-trazabilidad.svg)
 
 **Secuencia real, ejecutada sobre los datos de ejemplo del repositorio** (Aceite de Oliva 5L, 3 lotes
 de proveedor con caducidad distinta — ver sección 4).
