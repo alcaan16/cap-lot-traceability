@@ -1,0 +1,75 @@
+@baseUrl = http://localhost:4004/api/logistica
+
+### ── 1. Stock inicial (referencia antes de operar) ──────────────────────────
+GET {{baseUrl}}/Productos?$select=ID,nombre,stock
+Accept: application/json
+
+### ── 2. Crear un Pedido ──────────────────────────────────────────────────────
+POST {{baseUrl}}/Pedidos
+Content-Type: application/json
+
+{
+  "referencia": "PED-2026-001",
+  "cliente": "Mercadona S.A."
+}
+
+### ── 3. Añadir item al pedido ────────────────────────────────────────────────
+# ⚠️ Copia el ID del paso 2 y pégalo en pedido_ID
+# Escáner de Código de Barras (stock inicial: 15)
+POST {{baseUrl}}/ItemsPedido
+Content-Type: application/json
+
+{
+  "pedido_ID":   "PEGAR-UUID-DEL-PEDIDO",
+  "producto_ID": "30000000-0000-0000-0000-000000000003",
+  "cantidad":    2
+}
+
+### ── 4. Verificar total del pedido (debe ser 149.99 × 2 = 299.98) ────────────
+# ⚠️ Sustituye el UUID
+GET {{baseUrl}}/Pedidos/PEGAR-UUID-DEL-PEDIDO?$expand=items
+Accept: application/json
+
+### ── 5. Pedir más stock del disponible (DEBE FALLAR con 400) ────────────────
+POST {{baseUrl}}/ItemsPedido
+Content-Type: application/json
+
+{
+  "pedido_ID":   "PEGAR-UUID-DEL-PEDIDO",
+  "producto_ID": "30000000-0000-0000-0000-000000000003",
+  "cantidad":    9999
+}
+
+### ── 6. Confirmar el pedido ──────────────────────────────────────────────────
+POST {{baseUrl}}/confirmarPedido
+Content-Type: application/json
+
+{
+  "pedidoId": "PEGAR-UUID-DEL-PEDIDO"
+}
+
+### ── 7. Stock final (Escáner debe haber bajado de 15 a 13) ──────────────────
+GET {{baseUrl}}/Productos?$select=ID,nombre,stock
+Accept: application/json
+
+### ── 8. Confirmar de nuevo el mismo pedido (DEBE FALLAR con 400) ─────────────
+POST {{baseUrl}}/confirmarPedido
+Content-Type: application/json
+
+{
+  "pedidoId": "PEGAR-UUID-DEL-PEDIDO"
+}
+
+### ── EXTRAS — OData avanzado ─────────────────────────────────────────────────
+
+### Productos con expand de categoría
+GET {{baseUrl}}/Productos?$expand=categoria($select=nombre)
+Accept: application/json
+
+### Proveedores con sus productos filtrados por stock
+GET {{baseUrl}}/Proveedores?$expand=productos($select=nombre,stock;$filter=stock lt 100)
+Accept: application/json
+
+### Productos ordenados por precio descendente
+GET {{baseUrl}}/Productos?$orderby=precio desc&$select=nombre,precio,stock
+Accept: application/json
