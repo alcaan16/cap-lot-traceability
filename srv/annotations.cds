@@ -8,7 +8,6 @@ annotate service.Productos with {
     nombre      @title: 'Nombre';
     descripcion @title: 'Descripción';
     precio      @title: 'Precio (€)';
-    stock       @title: 'Stock Disponible';
     categoria   @title: 'Categoría';
     proveedor   @title: 'Proveedor';
 }
@@ -41,12 +40,11 @@ annotate service.Productos with @(
             Description:    { Value: descripcion }
         },
 
-        SelectionFields: [ nombre, precio, stock, categoria_ID ],
+        SelectionFields: [ nombre, precio, categoria_ID ],
 
         LineItem: [
             { Value: nombre,           Label: 'Nombre' },
             { Value: precio,           Label: 'Precio (€)' },
-            { Value: stock,            Label: 'Stock' },
             { Value: categoria.nombre, Label: 'Categoría' },
             { Value: proveedor.nombre, Label: 'Proveedor' }
         ],
@@ -56,8 +54,7 @@ annotate service.Productos with @(
             Data: [
                 { Value: nombre },
                 { Value: descripcion },
-                { Value: precio },
-                { Value: stock }
+                { Value: precio }
             ]
         },
 

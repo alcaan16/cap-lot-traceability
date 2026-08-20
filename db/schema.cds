@@ -13,7 +13,6 @@ entity Productos : cuid, managed {
     nombre      : String(100) not null;
     descripcion : String(500);
     precio      : Decimal(10,2) not null;
-    stock       : Integer default 0;
     categoria   : Association to Categorias;
     proveedor   : Association to Proveedores;
 }
@@ -48,4 +47,29 @@ entity ItemsPedido : cuid {
     cantidad : Integer not null;
     precio   : Decimal(10,2);    // se rellena automáticamente desde handler
     subtotal : Decimal(10,2);    // precio × cantidad, calculado en handler
+}
+
+// ─── TRAZABILIDAD DE LOTE ────────────────────────────────────────────────
+entity LotesProveedor : cuid, managed {
+    numeroLote         : String(30) not null;
+    proveedor          : Association to Proveedores not null;
+    producto           : Association to Productos not null;
+    cantidadRecibida   : Decimal(10,3) not null;
+    cantidadDisponible : Decimal(10,3) not null;   // para lógica FEFO en el handler
+    fechaRecepcion     : Date not null;
+    fechaCaducidad     : Date;                     // SLED
+}
+
+entity LotesInternos : cuid, managed {
+    numeroLoteInterno : String(30) not null;
+    productoTerminado : Association to Productos not null;
+    fechaProduccion   : Date not null;
+    cantidadProducida : Decimal(10,3) not null;
+    origenes          : Composition of many ConsumosLote on origenes.loteInterno = $self;
+}
+
+entity ConsumosLote : cuid {
+    loteInterno       : Association to LotesInternos not null;
+    loteProveedor     : Association to LotesProveedor not null;
+    cantidadConsumida : Decimal(10,3) not null;
 }
