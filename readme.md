@@ -116,10 +116,48 @@ curl -s http://localhost:4004/api/logistica/ConsumosLote
 Estos son los mismos pasos usados para verificar el proyecto durante el desarrollo, no un ejemplo
 aproximado.
 
-## 5. Capturas
+## 5. Capturas y ejemplo verificado
 
-*(pendiente de añadir)*
+*(diagrama del modelo de datos: pendiente)*
 
-- Modelo de datos (entidades y relaciones)
-- Respuesta de `registrarProduccion` repartiendo el consumo entre dos lotes
-- `LotesProveedor` y `ConsumosLote` tras el reparto, mostrando el resultado
+**Secuencia real, ejecutada sobre los datos de ejemplo del repositorio** (Aceite de Oliva 5L, 3 lotes
+de proveedor con caducidad distinta — ver sección 4).
+
+Petición — producir 100 unidades, más de lo que cabe en el lote que antes caduca (80):
+
+```bash
+curl -si -X POST http://localhost:4004/api/logistica/registrarProduccion \
+  -H "Content-Type: application/json" \
+  -d '{"productoId":"30000000-0000-0000-0000-000000000004","cantidadProducida":100,"fechaProduccion":"2026-08-20"}'
+```
+
+Respuesta — se crea el lote interno:
+
+```json
+{
+  "ID": "3cf794c3-4e40-4edf-ad83-a6700dd95360",
+  "numeroLoteInterno": "LI-20260820-001",
+  "productoTerminado_ID": "30000000-0000-0000-0000-000000000004",
+  "fechaProduccion": "2026-08-20",
+  "cantidadProducida": 100
+}
+```
+
+`LotesProveedor` antes y después de la operación — el lote que caduca antes se agota, el siguiente
+pierde solo lo que faltaba, el que caduca más tarde no se toca:
+
+| Lote | Caducidad | Disponible antes | Disponible después |
+|---|---|---|---|
+| LOTE-2026-001 | 2027-06-15 | 80 | **0** |
+| LOTE-2026-002 | 2027-09-01 | 65 | **45** |
+| LOTE-2026-003 | 2028-01-15 | 50 | 50 (sin tocar) |
+
+`ConsumosLote` — de dónde salió exactamente la producción:
+
+| Lote de proveedor consumido | Cantidad |
+|---|---|
+| LOTE-2026-001 | 80 |
+| LOTE-2026-002 | 20 |
+
+**80 + 20 = 100**, coincide con lo producido, y el orden de consumo respeta la fecha de caducidad más
+próxima primero (FEFO).
