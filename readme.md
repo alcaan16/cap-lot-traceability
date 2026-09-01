@@ -1,3 +1,6 @@
+#### Parte de un portfolio de tres proyectos sobre el mismo hilo funcional — recepción → lote → FEFO → alerta de caducidad. Ver el conjunto en [alcaan16.es](https://alcaan16.es/)
+---
+
 # Trazabilidad de Lote — Logística de Producción
 
 Aplicación CAP que modela la trazabilidad de lote en un proceso de producción: desde el lote recibido
